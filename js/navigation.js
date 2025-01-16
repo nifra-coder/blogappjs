@@ -12,8 +12,10 @@ function loadNavbar() {
       <a href="home.html">Home</a>
       <a href="create-post.html">Create Post</a>
       <a href="profile.html">Profile</a>
-       <a href="#"><div id="notification-container" style="position: absolute; top: 15px; right: 20px;">
-      <i class="fa-solid fa-bell" style="font-size: 24px; cursor: pointer; position: relative;" onclick="showNotifications()">
+       <a href="#"><div id="notification-container" style="position: absolute;
+    top: 21px;
+    right: 11px;">
+      <i class="fa-solid fa-bell" style="font-size: 21px; cursor: pointer; position: relative;" onclick="showNotifications()">
         <span id="notification-badge" style="
           position: absolute;
           top: -8px;

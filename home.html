@@ -259,17 +259,18 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   document.body.appendChild(badge);
 
-  const notificationIcon = document.createElement("div");
-  notificationIcon.id = "notification-icon";
-  notificationIcon.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    cursor: pointer;
-    font-size: 24px;
-  `;
-  notificationIcon.innerHTML = `<i class="fa-solid fa-bell"></i>`;
-  document.body.appendChild(notificationIcon);
+  // const notificationIcon = document.createElement("div");
+  // notificationIcon.id = "notification-icon";
+  // notificationIcon.style.cssText = `
+  //  position: fixed;
+  //   top: 14px;
+  //   right: 8px;
+  //   cursor: pointer;
+  //   font-size: 23px;
+  //   color: white;
+  // `;
+  // notificationIcon.innerHTML = `<i class="fa-solid fa-bell"></i>`;
+  // document.body.appendChild(notificationIcon);
 
   notificationIcon.addEventListener("click", showNotifications);
 
