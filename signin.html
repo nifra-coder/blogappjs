@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Sign In</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/auth.js"></script>
+</head>
+<style>
+   
+  .wrapper {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .signin-container {
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+  }
+
+  h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  .input-group label i {
+    color: #dc3545;
+    margin-right: 5px;
+  }
+
+  .input-group {
+    margin-bottom: 15px;
+    text-align: left;
+  }
+
+  .input-group label {
+    font-size: 14px;
+    color: #666;
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  input[type="email"],
+  input[type="password"] {
+    width: 94%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+
+  input[type="email"]:focus,
+  input[type="password"]:focus {
+    border-color: #dc3545;
+  }
+
+  .btn {
+    background-color: #181717;
+    border: 2px solid #181717;
+    border-radius: 15px;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: normal;
+    padding: 8px 18px;
+    width: 100%;
+    transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+  }
+
+  .btn:hover {
+    background-color: #dc3545;
+  }
+
+  hr {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid #ccc;
+  }
+
+  p {
+    font-size: 14px;
+    color: #666;
+  }
+  
+  /* Modal background */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+
+  /* Modal content */
+  .modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 400px;
+  }
+
+  /* Close button */
+  .close-btn {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+  }
+
+  .close-btn:hover,
+  .close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+
+</style>
+
+<body>
+  <div id="navbar"></div>
+  <div class="wrapper">
+    <div class="signin-container">
+      <h1>Sign In</h1>
+      <form id="signin-form"  onsubmit="handleSignin(event)">
+        <div class="input-group">
+          <label for="signin-email"><i class="fas fa-envelope"></i> Email:</label>
+          <input type="email" id="signin-email" placeholder="Enter your email" required>
+        </div>
+        <div class="input-group">
+          <label for="signin-password"><i class="fas fa-lock"></i> Password:</label>
+          <input type="password" id="signin-password" placeholder="Enter your password" required>
+        </div>
+        <button type="submit" class="btn">Sign In</button>
+      </form>
+      <hr>
+      <p>Or sign in using:</p>
+      <button id="google-signin" class="btn google-btn"><i class="fab fa-google"></i> Sign In with Google</button>
+    </div>
+  </div>
+  <!-- Modal structure for showing messages -->
+<div id="message-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <p id="modal-message"></p>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Blogify. All rights reserved.</p>
+  </footer>
+  
+</body>
+
+</html>
+

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Post</title>
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/navigation.js"></script>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div id="post-container"></div>
+
+  <script>
+    async function loadPost() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const postId = urlParams.get("postId");
+
+      if (!postId) {
+        document.body.innerHTML = "<p>Post not found.</p>";
+        return;
+      }
+
+      try {
+        const postDoc = await db.collection("posts").doc(postId).get();
+
+        if (!postDoc.exists) {
+          document.body.innerHTML = "<p>Post not found.</p>";
+          return;
+        }
+
+        const post = postDoc.data();
+        const postContainer = document.getElementById("post-container");
+
+        // Render the post content
+        postContainer.innerHTML = `
+          <h1>${post.title}</h1>
+          <p>${post.content}</p>
+          ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%; height: auto;">` : ""}
+          <p><strong>Author:</strong> ${post.author}</p>
+          <p>
+            <strong>Likes:</strong> ${post.likes || 0}
+            <button onclick="likePost('${postId}')">Like Post</button>
+          </p>
+          <h3>Comments:</h3>
+          <div id="comments">
+            ${renderComments(post.comments || [])}
+          </div>
+          <textarea id="comment-input" placeholder="Add a comment"></textarea>
+          <button onclick="addComment('${postId}')">Add Comment</button>
+        `;
+      } catch (error) {
+        console.error("Error loading post:", error);
+        document.body.innerHTML = "<p>Error loading post. Please try again.</p>";
+      }
+    }
+
+    // Function to like the post
+    async function likePost(postId) {
+      try {
+        const postRef = db.collection("posts").doc(postId);
+        const postDoc = await postRef.get();
+        const postData = postDoc.data();
+
+        const updatedLikes = (postData.likes || 0) + 1;
+        await postRef.update({ likes: updatedLikes });
+
+        loadPost(); // Reload the post to update the like count
+      } catch (error) {
+        console.error("Error liking post:", error);
+      }
+    }
+
+    // Render comments and nested comments
+    function renderComments(comments, level = 0) {
+      return comments
+        .map(
+          (comment) => `
+            <div style="margin-left: ${level * 20}px; border-left: 1px solid #ccc; padding-left: 10px;">
+              <p><strong>${comment.author}</strong>: ${comment.content}</p>
+              <p>
+                <small>${new Date(comment.createdAt.seconds * 1000).toLocaleString()}</small>
+                <button onclick="likeComment('${comment.commentId}', '${comment.postId}')">
+                  Like (${comment.likes || 0})
+                </button>
+                <button onclick="replyToComment('${comment.commentId}', '${comment.postId}')">Reply</button>
+              </p>
+              <div id="replies-${comment.commentId}">
+                ${renderComments(comment.replies || [], level + 1)}
+              </div>
+            </div>
+          `
+        )
+        .join("");
+    }
+
+    // Add a comment to the post or as a reply to another comment
+    async function addComment(postId, parentCommentId = null) {
+      const commentInput = parentCommentId
+        ? document.getElementById(`reply-input-${parentCommentId}`)
+        : document.getElementById("comment-input");
+      const commentContent = commentInput.value.trim();
+
+      if (!commentContent) {
+        alert("Comment content cannot be empty.");
+        return;
+      }
+
+      try {
+        const user = auth.currentUser;
+        if (!user) {
+          alert("You must be logged in to comment.");
+          return;
+        }
+
+        const comment = {
+          commentId: `${Date.now()}-${user.uid}`,
+          postId,
+          parentCommentId,
+          userId: user.uid,
+          author: user.displayName || "Anonymous",
+          content: commentContent,
+          createdAt: new Date(),
+          likes: 0,
+          replies: [],
+        };
+
+        const postRef = db.collection("posts").doc(postId);
+        const postDoc = await postRef.get();
+
+        if (!postDoc.exists) {
+          alert("Post not found.");
+          return;
+        }
+
+        const postData = postDoc.data();
+
+        if (!postData.comments) {
+          postData.comments = [];
+        }
+
+        if (parentCommentId) {
+          const updateComments = (comments) => {
+            return comments.map((c) => {
+              if (c.commentId === parentCommentId) {
+                c.replies = [...(c.replies || []), comment];
+              } else if (c.replies) {
+                c.replies = updateComments(c.replies);
+              }
+              return c;
+            });
+          };
+
+          postData.comments = updateComments(postData.comments);
+        } else {
+          postData.comments.push(comment);
+        }
+
+        await postRef.update({ comments: postData.comments });
+        commentInput.value = ""; // Clear input
+        alert("Comment added successfully.");
+        loadPost(); // Reload post to show updated comments
+      } catch (error) {
+        console.error("Error adding comment:", error);
+        alert("Failed to add comment. Please try again.");
+      }
+    }
+
+    // Like a comment
+    async function likeComment(commentId, postId) {
+      try {
+        const postRef = db.collection("posts").doc(postId);
+        const postDoc = await postRef.get();
+        const postData = postDoc.data();
+
+        const updateLikes = (comments) => {
+          return comments.map((c) => {
+            if (c.commentId === commentId) {
+              c.likes = (c.likes || 0) + 1;
+            } else if (c.replies) {
+              c.replies = updateLikes(c.replies);
+            }
+            return c;
+          });
+        };
+
+        postData.comments = updateLikes(postData.comments || []);
+        await postRef.update({ comments: postData.comments });
+        loadPost();
+      } catch (error) {
+        console.error("Error liking comment:", error);
+        alert("Failed to like comment. Please try again.");
+      }
+    }
+
+    // Display a reply input field for a specific comment
+    function replyToComment(commentId, postId) {
+      const repliesContainer = document.getElementById(`replies-${commentId}`);
+      if (!document.getElementById(`reply-input-${commentId}`)) {
+        repliesContainer.innerHTML += `
+          <textarea id="reply-input-${commentId}" placeholder="Reply to this comment"></textarea>
+          <button onclick="addComment('${postId}', '${commentId}')">Add Reply</button>
+        `;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadPost);
+  </script>
+  <footer>
+    <p>&copy; 2025 Blogify. All rights reserved.</p>
+  </footer>
+</body>
+</html>
