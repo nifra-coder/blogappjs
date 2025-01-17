@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>View Post</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="assets/images/profile.png">
+
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -14,87 +17,402 @@
 
   <script src="js/firebase-config.js"></script>
   <script src="js/navigation.js"></script>
-</head>
-<body>
-  <div id="navbar"></div>
-  <div id="post-container"></div>
+  <!-- icons
+  -->
+  <!-- icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <script>
-    async function loadPost() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const postId = urlParams.get("postId");
+  <!-- font links -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+    rel="stylesheet">
+  <!-- nunito -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+    rel="stylesheet">
 
-      if (!postId) {
-        document.body.innerHTML = "<p>Post not found.</p>";
-        return;
-      }
+  <style>
+    body {
 
-      try {
-        const postDoc = await db.collection("posts").doc(postId).get();
-
-        if (!postDoc.exists) {
-          document.body.innerHTML = "<p>Post not found.</p>";
-          return;
-        }
-
-        const post = postDoc.data();
-        const postContainer = document.getElementById("post-container");
-
-        // Render the post content
-        postContainer.innerHTML = `
-          <h1>${post.title}</h1>
-          <p>${post.content}</p>
-          ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%; height: auto;">` : ""}
-          <p><strong>Author:</strong> ${post.author}</p>
-          <p>
-            <strong>Likes:</strong> ${post.likes || 0}
-            <button onclick="likePost('${postId}')">Like Post</button>
-          </p>
-          <h3>Comments:</h3>
-          <div id="comments">
-            ${renderComments(post.comments || [])}
-          </div>
-          <textarea id="comment-input" placeholder="Add a comment"></textarea>
-          <button onclick="addComment('${postId}')">Add Comment</button>
-        `;
-      } catch (error) {
-        console.error("Error loading post:", error);
-        document.body.innerHTML = "<p>Error loading post. Please try again.</p>";
-      }
+      font-family: "Nunito", serif;
     }
 
-    // Function to like the post
+    .wrapper-container {
+      display: flex;
+      flex-direction: row;
+      width: 90%;
+      justify-content: center;
+      margin: 0 auto;
+    }
+    .post-meta span {
+    position: absolute;
+    top: 8px;
+}
+.post-meta {
+    position: relative;
+    display: flex
+;
+    justify-content: space-between;
+}
+
+    #post-container {
+      width: 60%;
+      padding: 20px;
+      border-right: 1px solid #ccc;
+    }
+
+    .post-view-content img {
+      width: 100%;
+      object-fit: cover;
+      height: 500px;
+    }
+
+    .post-meta img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    #comments {
+      margin-top: 20px;
+    }
+
+    #comments-container {
+      width: 40%;
+      padding: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .comment {
+      margin-bottom: 15px;
+      border-left: 2px solid #ccc;
+      padding-left: 10px;
+    }
+
+    .post-view-content h1 {
+      font-family: "Playfair Display", serif;
+      margin: 10px;
+      text-transform: capitalize;
+      font-size: 60px;
+      font-weight: 400;
+    }
+
+    .post-view-content p {
+
+      font-size: 22px;
+    }
+   
+   
+
+    
+
+    .post-content {
+      padding: 15px;
+    }
+
+    .post-content h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .post-content p {
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="navbar"></div>
+  <div class="wrapper-container">
+    <div id="post-container"></div>
+    <div id="comments-container">
+      <h3>Comments</h3>
+      <div id="comments"></div>
+      <textarea id="comment-input" placeholder="Add a comment"></textarea>
+      <button onclick="addComment()">Add Comment</button>
+    </div>
+  </div>
+
+ <!-- Updated Other Posts Section -->
+<div class="container" style="margin-top: 40px;">
+  <h1 class="underline-small"class="underline-small">Posts you also might like....</h1>
+  <div id="other-posts-container" class="masonry">
+    <!-- Posts will be dynamically injected here -->
+  </div>
+</div>
+<footer>
+  <p>&copy; 2025 Blogify. All rights reserved.</p>
+</footer>
+<!-- Updated CSS for Masonry Layout -->
+<style>
+  /* underline */
+  .container {
+    margin: 0 auto;
+    width: 90%;
+    text-align: center;
+}
+  .masonry {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .masonry span {
+    flex: 1 1 calc(31.333% - 20px);
+    box-sizing: border-box;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .masonry-item {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+
+  .masonry-item img,
+  .masonry-item video {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+
+  .post-content {
+    padding: 15px;
+  }
+  .container h1 {
+    font-size: 41px;
+    text-align: start;
+    margin: 44px 0;
+    font-weight: 400;
+    font-family: 'playfair-display';
+}
+  .masonry-item h2 {
+    text-transform: capitalize;
+    font-family: 'playfair-display', serif;
+    font-size: 48px;
+    margin-bottom: 10px;
+    font-weight: 400;
+    text-align: center;
+    margin-top:0 ;
+}
+.masonry-item h6{
+  text-align: start;
+  margin: 0;
+}
+
+.post-content p {
+    font-size: 20px;
+    color: black;
+    text-align: center;
+}
+  @media screen and (max-width: 768px) {
+    .masonry span {
+      flex: 1 1 calc(50% - 20px);
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .masonry span {
+      flex: 1 1 100%;
+    }
+  }
+</style>
+
+
+
+    
+  
+  
+  <script>
+    async function loadPost() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const postId = urlParams.get("postId");
+
+  if (!postId) {
+    document.body.innerHTML = "<p>Post not found.</p>";
+    return;
+  }
+
+  try {
+    const postDoc = await db.collection("posts").doc(postId).get();
+
+    if (!postDoc.exists) {
+      document.body.innerHTML = "<p>Post not found.</p>";
+      return;
+    }
+
+    const post = postDoc.data();
+    const postContainer = document.getElementById("post-container");
+
+    // Render the post content
+    postContainer.innerHTML = `
+      <div class="post-view-content">
+        <h1>${post.title}</h1>
+        ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Post Image">` : ""}
+        <div class="post-meta">
+          <div>
+          <img src="${post.profileImage || 'default-profile.jpg'}" alt="Profile Image">
+          <span>${post.username || "Anonymous"}</span>
+          </div>
+           <div>
+          <button onclick="likePost('${postId}')">
+            <i class="fa-regular fa-heart"></i>
+            <span id="post-likes">${post.likes || 0}</span>
+          </button>
+          </div>
+        </div>
+        <p>${post.content}</p>
+       
+      </div>
+      
+    `;
+
+    // Render comments
+    document.getElementById("comments").innerHTML = renderComments(post.comments || [], postId);
+
+    // Load other posts
+    loadOtherPosts(postId);
+  } catch (error) {
+    console.error("Error loading post:", error);
+    document.body.innerHTML = "<p>Error loading post. Please try again.</p>";
+  }
+}
+
+async function loadOtherPosts(currentPostId) {
+  const otherPostsContainer = document.getElementById("other-posts-container");
+
+  try {
+    const postsSnapshot = await db.collection("posts").orderBy("createdAt", "desc").limit(6).get();
+
+    if (!postsSnapshot.empty) {
+      let otherPostsHTML = "";
+
+      postsSnapshot.forEach((doc) => {
+        const post = doc.data();
+        const postId = doc.id;
+
+        // Exclude the current post from the list
+        if (postId !== currentPostId) {
+          otherPostsHTML += `
+            <span>
+              <div class="masonry-item" onclick="window.location.href='view-post.html?postId=${postId}'">
+                <h6>${post.createdAt?.toDate().toLocaleDateString() || "Unknown Date"}</h6>
+                <h2>${post.title}</h2>
+                <div class="img-post">
+                  ${post.imageUrl?.endsWith(".mp4")
+                    ? `<video autoplay muted loop><source src="${post.imageUrl}" type="video/mp4"></video>`
+                    : `<img src="${post.imageUrl || 'default-image.jpg'}" alt="Post Image">`}
+                </div>
+                <div class="post-content">
+                  <p>${post.content?.substring(0, 50)}...</p>
+                </div>
+              </div>
+            </span>
+           
+          `;
+        }
+      });
+
+      otherPostsContainer.innerHTML = otherPostsHTML;
+    } else {
+      otherPostsContainer.innerHTML = "<p>No other posts available.</p>";
+    }
+  } catch (error) {
+    console.error("Error fetching other posts:", error);
+    otherPostsContainer.innerHTML = "<p>Failed to load other posts. Please try again later.</p>";
+  }
+}
+
+
+      
+
+
     async function likePost(postId) {
       try {
         const postRef = db.collection("posts").doc(postId);
         const postDoc = await postRef.get();
+
+        if (!postDoc.exists) {
+          alert("Post not found.");
+          return;
+        }
+
         const postData = postDoc.data();
-
         const updatedLikes = (postData.likes || 0) + 1;
-        await postRef.update({ likes: updatedLikes });
 
-        loadPost(); // Reload the post to update the like count
+        await postRef.update({ likes: updatedLikes });
+        document.getElementById("post-likes").textContent = updatedLikes;
       } catch (error) {
         console.error("Error liking post:", error);
+        alert("Failed to like post. Please try again.");
       }
     }
 
-    // Render comments and nested comments
-    function renderComments(comments, level = 0) {
+    async function likeComment(commentId, postId) {
+      try {
+        const postRef = db.collection("posts").doc(postId);
+        const postDoc = await postRef.get();
+
+        if (!postDoc.exists) {
+          alert("Post not found.");
+          return;
+        }
+
+        const postData = postDoc.data();
+
+        const updateLikes = (comments) => {
+          return comments.map((comment) => {
+            if (comment.commentId === commentId) {
+              comment.likes = (comment.likes || 0) + 1;
+            } else if (comment.replies) {
+              comment.replies = updateLikes(comment.replies);
+            }
+            return comment;
+          });
+        };
+
+        postData.comments = updateLikes(postData.comments || []);
+
+        await postRef.update({ comments: postData.comments });
+        loadPost();
+      } catch (error) {
+        console.error("Error liking comment:", error);
+        alert("Failed to like comment. Please try again.");
+      }
+    }
+
+    function renderComments(comments, postId, level = 0) {
       return comments
         .map(
           (comment) => `
-            <div style="margin-left: ${level * 20}px; border-left: 1px solid #ccc; padding-left: 10px;">
+            <div class="comment" style="margin-left: ${level * 20}px;">
               <p><strong>${comment.author}</strong>: ${comment.content}</p>
               <p>
                 <small>${new Date(comment.createdAt.seconds * 1000).toLocaleString()}</small>
-                <button onclick="likeComment('${comment.commentId}', '${comment.postId}')">
-                  Like (${comment.likes || 0})
+                <button onclick="likeComment('${comment.commentId}', '${postId}')">
+                  <i class="fa-regular fa-thumbs-up"></i>(${comment.likes || 0})
                 </button>
-                <button onclick="replyToComment('${comment.commentId}', '${comment.postId}')">Reply</button>
+                <button onclick="showReplyField('${comment.commentId}')"><i class="fa-solid fa-reply"></i></button>
               </p>
               <div id="replies-${comment.commentId}">
-                ${renderComments(comment.replies || [], level + 1)}
+                ${renderComments(comment.replies || [], postId, level + 1)}
               </div>
             </div>
           `
@@ -102,15 +420,87 @@
         .join("");
     }
 
-    // Add a comment to the post or as a reply to another comment
-    async function addComment(postId, parentCommentId = null) {
-      const commentInput = parentCommentId
-        ? document.getElementById(`reply-input-${parentCommentId}`)
-        : document.getElementById("comment-input");
+    function showReplyField(commentId) {
+      const repliesContainer = document.getElementById(`replies-${commentId}`);
+      if (!document.getElementById(`reply-input-${commentId}`)) {
+        repliesContainer.innerHTML += `
+          <textarea id="reply-input-${commentId}" placeholder="Reply to this comment"></textarea>
+          <button onclick="addReply('${commentId}')">Add Reply</button>
+        `;
+      }
+    }
+
+    async function addReply(parentCommentId) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const postId = urlParams.get("postId");
+
+      const replyInput = document.getElementById(`reply-input-${parentCommentId}`);
+      const replyContent = replyInput.value.trim();
+
+      if (!replyContent) {
+        alert("Reply content cannot be empty.");
+        return;
+      }
+
+      try {
+        const user = auth.currentUser;
+        if (!user) {
+          alert("You must be logged in to reply.");
+          return;
+        }
+
+        const reply = {
+          commentId: `${Date.now()}-${user.uid}`,
+          postId,
+          parentCommentId,
+          userId: user.uid,
+          author: user.displayName || "Anonymous",
+          content: replyContent,
+          createdAt: new Date(),
+          likes: 0,
+          replies: [],
+        };
+
+        const postRef = db.collection("posts").doc(postId);
+        const postDoc = await postRef.get();
+
+        if (!postDoc.exists) {
+          alert("Post not found.");
+          return;
+        }
+
+        const postData = postDoc.data();
+
+        const updateReplies = (comments) => {
+          return comments.map((comment) => {
+            if (comment.commentId === parentCommentId) {
+              comment.replies = [...(comment.replies || []), reply];
+            } else if (comment.replies) {
+              comment.replies = updateReplies(comment.replies);
+            }
+            return comment;
+          });
+        };
+
+        postData.comments = updateReplies(postData.comments || []);
+
+        await postRef.update({ comments: postData.comments });
+        replyInput.value = "";
+        alert("Reply added successfully.");
+        loadPost();
+      } catch (error) {
+        console.error("Error adding reply:", error);
+        alert("Failed to add reply. Please try again.");
+      }
+    }
+    async function addComment() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const postId = urlParams.get("postId");
+      const commentInput = document.getElementById("comment-input");
       const commentContent = commentInput.value.trim();
 
       if (!commentContent) {
-        alert("Comment content cannot be empty.");
+        alert("Comment cannot be empty.");
         return;
       }
 
@@ -124,7 +514,6 @@
         const comment = {
           commentId: `${Date.now()}-${user.uid}`,
           postId,
-          parentCommentId,
           userId: user.uid,
           author: user.displayName || "Anonymous",
           content: commentContent,
@@ -142,80 +531,21 @@
         }
 
         const postData = postDoc.data();
-
-        if (!postData.comments) {
-          postData.comments = [];
-        }
-
-        if (parentCommentId) {
-          const updateComments = (comments) => {
-            return comments.map((c) => {
-              if (c.commentId === parentCommentId) {
-                c.replies = [...(c.replies || []), comment];
-              } else if (c.replies) {
-                c.replies = updateComments(c.replies);
-              }
-              return c;
-            });
-          };
-
-          postData.comments = updateComments(postData.comments);
-        } else {
-          postData.comments.push(comment);
-        }
+        postData.comments = [...(postData.comments || []), comment];
 
         await postRef.update({ comments: postData.comments });
-        commentInput.value = ""; // Clear input
+        commentInput.value = "";
         alert("Comment added successfully.");
-        loadPost(); // Reload post to show updated comments
+        loadPost();
       } catch (error) {
         console.error("Error adding comment:", error);
         alert("Failed to add comment. Please try again.");
       }
     }
 
-    // Like a comment
-    async function likeComment(commentId, postId) {
-      try {
-        const postRef = db.collection("posts").doc(postId);
-        const postDoc = await postRef.get();
-        const postData = postDoc.data();
-
-        const updateLikes = (comments) => {
-          return comments.map((c) => {
-            if (c.commentId === commentId) {
-              c.likes = (c.likes || 0) + 1;
-            } else if (c.replies) {
-              c.replies = updateLikes(c.replies);
-            }
-            return c;
-          });
-        };
-
-        postData.comments = updateLikes(postData.comments || []);
-        await postRef.update({ comments: postData.comments });
-        loadPost();
-      } catch (error) {
-        console.error("Error liking comment:", error);
-        alert("Failed to like comment. Please try again.");
-      }
-    }
-
-    // Display a reply input field for a specific comment
-    function replyToComment(commentId, postId) {
-      const repliesContainer = document.getElementById(`replies-${commentId}`);
-      if (!document.getElementById(`reply-input-${commentId}`)) {
-        repliesContainer.innerHTML += `
-          <textarea id="reply-input-${commentId}" placeholder="Reply to this comment"></textarea>
-          <button onclick="addComment('${postId}', '${commentId}')">Add Reply</button>
-        `;
-      }
-    }
 
     document.addEventListener("DOMContentLoaded", loadPost);
   </script>
-  <footer>
-    <p>&copy; 2025 Blogify. All rights reserved.</p>
-  </footer>
 </body>
+
 </html>

@@ -11,7 +11,9 @@ function loadNavbar() {
       <div class="nav-all-items"> 
       <a href="home.html">Home</a>
       <a href="create-post.html">Create Post</a>
+      <a href="categories.html">Explore</a>
       <a href="profile.html">Profile</a>
+
        <a href="#"><div id="notification-container" style="position: absolute;
     top: 21px;
     right: 11px;">

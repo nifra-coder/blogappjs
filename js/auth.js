@@ -157,6 +157,4 @@ function handleGoogleSignup() {
     });
 }
 
-document
-  .getElementById("google-signup")
-  .addEventListener("click", handleGoogleSignup);
+document.getElementById("google-signup").addEventListener("click", handleGoogleSignup);

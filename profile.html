@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profile</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="assets/images/profile.png">
+
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -14,6 +16,11 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/navigation.js"></script>
+
+  <!-- icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -72,8 +79,9 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 20px;
-      margin-top: 20px;
-      width: 90%;
+      width: 100%;
+      margin: 0 auto;
+      text-align: center;
     }
 
     .post {
@@ -85,9 +93,9 @@
     }
 
     .post img {
-      max-width: 100%;
-      height: auto;
+      width: 100%;
       border-radius: 8px;
+      height: 300px;
     }
 
     .modal {
@@ -107,7 +115,6 @@
       margin: 15% auto;
       padding: 20px;
       border-radius: 8px;
-      text-align: center;
       width: 50%;
     }
 
@@ -126,6 +133,35 @@
       text-align: center;
       width: 100%;
     }
+
+    .post-container-turst {
+      padding: 24px;
+    }
+
+    .post-container-turst h2 {
+    font-size: 42px;
+    margin-left: 10px;
+}
+    form input,
+    form textarea,
+    form button {
+      display: block;
+      width: 96%;
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 3px;
+      border: 1px solid black;
+    }
+
+    form input,
+    form textarea:hover {
+
+      border: 1px solid rgb(214, 11, 11);
+    }
+
+    div#edit-modal::-webkit-scrollbar {
+      display: none;
+    }
   </style>
 </head>
 
@@ -135,7 +171,7 @@
     <div id="profile-container"></div>
     <div class="pro-btn">
       <button class="button-27" onclick="handleSignout()">Sign Out</button>
-      <button class="button-27" id="edit-profile-button">Edit Profile</button>
+      <button class="button-27" id="edit-profile-button">Edit profile</button>
     </div>
   </div>
 
@@ -155,8 +191,10 @@
     </div>
   </div>
 
-  <h2>Your Posts</h2>
-  <div id="user-posts"></div>
+  <div class="post-container-turst">
+    <h2 class="underline-small">Your Posts</h2>
+    <div id="user-posts"></div>
+  </div>
 
   <footer>
     <p>&copy; 2025 Blogify. All rights reserved.</p>
@@ -199,18 +237,17 @@
 
                 const postElement = `
                   <div class="post" data-id="${postId}">
-                    <h3>${post.title}</h3>
-                    <p>${post.content}</p>
-                    ${
-                      post.imageUrl
-                        ? `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%;">`
-                        : ""
-                    }
-                    <p><small>Created on: ${
-                      post.createdAt?.toDate().toLocaleString() || "Unknown"
-                    }</small></p>
-                    <button class="edit-post-button" data-id="${postId}">Edit</button>
-                    <button class="delete-post-button" data-id="${postId}">Delete</button>
+                    <p><small>Created on: ${post.createdAt?.toDate().toLocaleString() || "Unknown"
+                  }</small></p>
+                      <h3>${post.title}</h3>
+                    ${post.imageUrl
+                    ? `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%;">`
+                    : ""
+                  }
+                    
+                     <p>${post.content}</p>
+                    <button class="edit-post-button" data-id="${postId}"><i class="fa-regular fa-pen-to-square"></i></button>
+                    <button class="delete-post-button" data-id="${postId}"><i class="fa-solid fa-trash"></i></button>
                   </div>
                 `;
                 userPostsContainer.innerHTML += postElement;

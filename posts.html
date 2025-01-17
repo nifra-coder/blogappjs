@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Posts by Category</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="icon" href="assets/images/profile.png">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/navigation.js"></script>
+    <!-- font icon ink -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- font links -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+  rel="stylesheet">
+<!-- nunito -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+  rel="stylesheet">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+       
+      
+        
+        .masonry {
+      display: grid;
+      grid-template-columns: 491px 1fr 1fr;
+      /* grid-auto-rows: 7px; */
+      gap: 20px;
+    }
+
+
+    .masonry-item {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(0, 0, 0, .1);
+    }
+
+
+
+    
+
+    .content-header span {
+      font-size: 10px;
+    }
+
+    .masonry-item[data-span="1"] {
+      grid-row: span 19;
+    }
+
+    .masonry-item[data-span="2"] {
+      grid-row: span 22
+    }
+
+    .masonry-item[data-span="3"] {
+      grid-row: span 26;
+    }
+
+    .masonry-item[data-span="1"] .img-post img,
+    .masonry-item[data-span="1"] video {
+      height: 250px;
+      /* Small image/video */
+    }
+
+    .masonry-item[data-span="2"] .img-post img,
+    .masonry-item[data-span="2"] video {
+      height: 350px;
+      /* Medium image/video */
+    }
+
+    .masonry-item[data-span="3"] .img-post img,
+    .masonry-item[data-span="3"] video {
+      height: 450px;
+      /* Large image/video */
+    }
+
+    .post-content {
+      font-family: "Nunito", serif;
+      padding: 15px;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+
+    }
+
+    .post-content h2 {
+      font-family: "Nunito", serif;
+      font-size: 20px;
+      margin: 0 0 10px;
+      color: #000000;
+    }
+
+    .post-content p {
+      font-family: "Nunito", serif;
+      font-weight: 500;
+      font-size: 15px;
+      color: #020202;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .post-meta1 {
+      display: flex;
+      /* align-items: center; */
+      gap: 10px;
+      margin: 10px 0;
+      font-size: 12px;
+      color: #070707;
+    }
+
+    .post-meta1 span {
+    margin-top: 3px;
+    font-family: 'Playfair Display';
+    font-size: 15px;
+}
+
+    .post-meta1 .profile-img{
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+    }
+
+    .post-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+    }
+    .masonry-item h2 {
+    font-family: 'playfair-display';
+    text-transform: capitalize;
+    font-size: 34px;
+    letter-spacing: 3px;
+    font-weight: 500;
+    text-align: center;
+    margin: 0;
+    margin-bottom: 10px;
+}
+    .por-post-img {
+    height: 500px;
+    object-fit: cover;
+}
+h6.timestamp {
+    margin: 0;
+}
+.masonry-item p {
+    text-align: center;
+    font-size: 17px;
+}
+
+    </style>
+</head>
+
+<body>
+    <div id="navbar"></div>
+    <h1>Posts by Category</h1>
+    <div class="container">
+        <div id="posts-container" class="masonry"></div>
+        <p id="error-message" class="error-message" style="display: none;"></p>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Blogify. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const postsContainer = document.getElementById("posts-container");
+            const errorMessage = document.getElementById("error-message");
+
+            // Get the category from the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get("category");
+
+            if (!category) {
+                errorMessage.style.display = "block";
+                errorMessage.textContent = "Category is not specified.";
+                return;
+            }
+
+            try {
+                console.log("Fetching posts for category:", category);
+
+                // Fetch posts for the selected category
+                const snapshot = await db
+                    .collection("posts")
+                    .where("category", "==", category)
+                    .orderBy("createdAt", "desc")
+                    .get();
+
+                if (snapshot.empty) {
+                    postsContainer.innerHTML = "<p>No posts found in this category.</p>";
+                    return;
+                }
+
+                let postsHTML = "";
+                snapshot.forEach((doc) => {
+                    const post = doc.data();
+                    const postId = doc.id; // Get the document ID for navigation
+
+                    // Format the timestamp
+                    const createdAt = post.createdAt?.toDate().toLocaleString() || "Unknown Date";
+
+                    postsHTML += `
+                <div class="masonry-item" onclick="viewPost('${postId}')">
+                  <div class="post-meta">
+
+                   <div>
+                      <h6 class="timestamp">${createdAt}</h6>
+                    </div>
+                      <h2>${post.title}</h2>
+                  
+                  </div>
+                  <img src="${post.imageUrl || 'assets/images/default.jpg'}" alt="${post.title}" class="por-post-img">
+                  <div class="post-meta1">
+                    <img src="${post.profileImage || 'https://via.placeholder.com/50'}" alt="${post.username || 'Anonymous'}" class="profile-img">
+                    <span class="username">${post.username || 'Anonymous'}</span>
+                   
+                  </div>
+                    
+                  <p>${post.content.substring(0, 100)}...</p>
+                </div>
+              `;
+                });
+
+                postsContainer.innerHTML = postsHTML;
+            } catch (error) {
+                console.error("Error fetching posts:", error);
+                errorMessage.style.display = "block";
+                errorMessage.textContent = `Error fetching posts: ${error.message}`;
+            }
+        });
+
+        // Navigate to view-post.html with the postId
+        function viewPost(postId) {
+            window.location.href = `view-post.html?postId=${postId}`;
+        }
+    </script>
+
+    
+    </style>
+
+
+</body>
+
+</html>
