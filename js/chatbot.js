@@ -65,7 +65,7 @@
       background-color: #a70817;
       color: white;
       border: none;
-      padding: 10px 20px;
+      padding: 10px 30px;
       cursor: pointer;
       display: flex;
       align-items: center;
