@@ -56,15 +56,15 @@ function loadNavbar() {
   
         // Redirect non-logged-in users trying to access protected pages
       
-  function handleSignout() {
-    auth
-      .signOut()
-      .then(() => {
-        alert("Signed out successfully!");
-        window.location.href = "index.html";
-      })
-      .catch((error) => {
-        console.error("Error signing out:", error);
-      });
-  }
+  // function handleSignout() {
+  //   auth
+  //     .signOut()
+  //     .then(() => {
+  //       alert("Signed out successfully!");
+  //       window.location.href = "index.html";
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error signing out:", error);
+  //     });
+  // }
   

@@ -243,6 +243,13 @@
 .notification-popup::-webkit-scrollbar{
   display: none;
 }
+#chatbot-container{
+  font-family: 'playfair display', serif;
+}
+#chatbot-popup{
+  font-family: 'playfair display', serif;
+
+}
 
   </style>
 </head>
@@ -259,11 +266,37 @@
       <section id="posts-container" class="masonry"></section>
     </div>
   </main>
+   <!-- Chatbot Button -->
+   <div id="chatbot-container">
+    <button id="chatbot-toggle" onclick="toggleChatbot()">
+      <i class="fa-solid fa-comments"></i> 
+    </button>
+    <div id="chatbot-popup">
+      <div id="chatbot-header">
+        <span>Connectify bot</span>
+        <button onclick="toggleChatbot()" id="close-chatbot">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div id="chatbot-messages">
+        <div style="text-align: left; margin: 10px 0; color: #0a0a0a;">
+          Hey, I'm Connectify Bot here to help you with your questions. Do you want any help with something?
+        </div>
+      </div>
+      <div id="chatbot-input-container">
+        <input type="text" id="chatbot-input" placeholder="Type your message..." />
+        <button onclick="sendMessage()">
+          <i class="fa-solid fa-arrow-up"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
 
   <footer>
     <p>&copy; 2025 Blogify. All rights reserved.</p>
   </footer>
-
+<script src="js/chatbot.js"></script>
   <script src="js/navigation.js"></script>
   <script>
     let notificationCount = 0;
